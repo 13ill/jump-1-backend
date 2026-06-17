@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 // Read product JSON files from public/Product directory
 function loadProductsFromJson() {
-  const productDir = join(process.cwd(), '../public/Product');
+  const productDir = join(process.cwd(), 'public/Product');
   const products: any[] = [];
 
   try {
