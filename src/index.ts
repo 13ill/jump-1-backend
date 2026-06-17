@@ -99,17 +99,17 @@ app.get('/', (c) => {
 // Detailed health check for Railway
 app.get('/health', async (c) => {
   try {
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    
+    // Simple health check without database connection
     return c.json({
       status: 'healthy',
-      database: 'connected',
+      
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     return c.json({
       status: 'unhealthy',
-      database: 'disconnected',
+      
       error: error instanceof Error ? error.message : String(error),
       timestamp: new Date().toISOString()
     }, 503);
