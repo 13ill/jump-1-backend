@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin") // admin, user
+  project   String   @default("jump1") // Project isolation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jump1_users")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   // "แหวน", "สร้อยคอ"
+  slug      String   @unique // "ring", "necklace"
+  priority  Int      @default(0) // 1, 2, 3, 4, 5 (ลำดับความสำคัญ)
+  isActive  Boolean  @default(true)
+  project   String   @default("jump1") // Project isolation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+
+  @@map("jump1_categories")
+}
+
+model Product {
+  id              String   @id
+  name            String
+  category        String   // Keep for backward compatibility
+  categoryId      String?  // New: link to Category
+  globalOrder     Int?     // New: ลำดับการแสดงผลทั่วไป (สำหรับ interleaved)
+  categoryOrder   Int?     // New: ลำดับการแสดงผลในหมวดหมู่ (สำหรับ grouped)
+  price           Int?
+  description     String
+  fullDescription String
+  material        String?
+  specifications   Json?    // Store as JSON for flexibility
+  images          Json     // Store as JSON array
+  project         String   @default("jump1") // Project isolation
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  categoryRelation Category? @relation(fields: [categoryId], references: [id])
+
+  @@map("jump1_products")
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String   // "line", "facebook", "instagram", "phone", "email"
+  url       String   // URL or contact info
+  isActive  Boolean  @default(true)
+  project   String   @default("jump1") // Project isolation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jump1_social_links")
+}
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  brandName       String   @default("Niwelry")
+  tagline         String?
+  address         String?
+  openingHours    String?
+  phone           String?
+  email           String?
+  project         String   @default("jump1") // Project isolation
+
+  // Hero Section
+  heroTitle       String?
+  heroSubtitle    String?
+  heroButtonText  String?
+  heroBackgroundImage String?
+  heroTextStrokeColor String?
+  heroTextStrokeWidth Float @default(0.5)
+  heroBorderColor String?
+  heroShowBorder Boolean @default(false)
+
+  // Newsletter Section
+  newsletterTitle       String?
+  newsletterDescription String?
+  newsletterBackgroundImage String?
+  newsletterTextStrokeColor String?
+  newsletterTextStrokeWidth Float @default(0.5)
+  newsletterBorderColor String?
+  newsletterShowBorder Boolean @default(false)
+
+  // Contact Page
+  contactPageTitle       String?
+  contactPageDescription String?
+  contactBackgroundImage String?
+  contactTextStrokeColor String?
+  contactTextStrokeWidth Float @default(0.5)
+  contactBorderColor String?
+  contactShowBorder Boolean @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("jump1_site_settings")
+}
