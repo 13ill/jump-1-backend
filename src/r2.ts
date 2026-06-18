@@ -22,6 +22,15 @@ const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || 'https://pub-2d7e25b6f92840b9
  */
 export async function uploadToR2(key: string, buffer: Buffer, contentType: string): Promise<string> {
   try {
+    console.log('📤 Uploading to R2:', { key, contentType, bucket: BUCKET_NAME });
+    console.log('🔧 R2 Config:', { 
+      endpoint: process.env.R2_ENDPOINT ? 'SET' : 'NOT SET',
+      accessKeyId: process.env.R2_ACCESS_KEY_ID ? 'SET' : 'NOT SET',
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ? 'SET' : 'NOT SET',
+      bucketName: BUCKET_NAME,
+      publicUrl: R2_PUBLIC_URL
+    });
+
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
@@ -30,11 +39,14 @@ export async function uploadToR2(key: string, buffer: Buffer, contentType: strin
     });
 
     await r2Client.send(command);
+    console.log('✅ R2 upload successful for key:', key);
     
     // Return the public URL
-    return `${R2_PUBLIC_URL}/${key}`;
+    const publicUrl = `${R2_PUBLIC_URL}/${key}`;
+    console.log('🔗 Returning public URL:', publicUrl);
+    return publicUrl;
   } catch (error) {
-    console.error('Error uploading to R2:', error);
+    console.error('❌ Error uploading to R2:', error);
     throw new Error('Failed to upload to R2');
   }
 }
