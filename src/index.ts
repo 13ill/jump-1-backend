@@ -623,7 +623,8 @@ app.post('/upload', authMiddleware, async (c) => {
     const contentType = mimeTypes[ext] || 'application/octet-stream';
 
     // Upload to R2
-    const fileUrl = await uploadToR2(filename, buffer, contentType);
+    const r2Key = `Product/${filename}`;
+    const fileUrl = await uploadToR2(r2Key, buffer, contentType);
     return c.json({ url: fileUrl });
   } catch (error) {
     console.error('Error uploading file:', error);
