@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
+import { uploadToR2 } from './r2';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 
@@ -610,20 +611,19 @@ app.post('/upload', authMiddleware, async (c) => {
     // Decode base64
     const buffer = Buffer.from(data, 'base64');
 
-    // Use the filename as-is (preserve directory structure)
-    const filepath = join(uploadsDir, filename);
+    // Determine content type based on file extension
+    const ext = filename.split('.').pop()?.toLowerCase() || '';
+    const mimeTypes: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+    };
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
 
-    // Ensure directory exists
-    const dir = dirname(filepath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
-
-    // Save file
-    writeFileSync(filepath, buffer);
-
-    // Return file URL
-    const fileUrl = `/${filename}`;
+    // Upload to R2
+    const fileUrl = await uploadToR2(filename, buffer, contentType);
     return c.json({ url: fileUrl });
   } catch (error) {
     console.error('Error uploading file:', error);
