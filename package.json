@@ -6,7 +6,6 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "tsx src/index.ts",
-
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -16,6 +15,7 @@
     "import:postgres": "node scripts/import-postgres.cjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1071.0",
     "@hono/node-server": "^1.19.14",
     "@prisma/client": "^6.1.0",
     "@supabase/supabase-js": "^2.108.2",
